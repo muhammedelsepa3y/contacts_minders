@@ -52,10 +52,6 @@ class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key,});
 
 
-  void _incrementCounter() {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     Logger logger=Logger();

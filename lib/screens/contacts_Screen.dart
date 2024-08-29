@@ -1,10 +1,12 @@
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled4/classes/number.dart';
 import 'package:untitled4/services/contacts_provider.dart';
 
 import '../classes/contact.dart';
+import 'edit_contact_screen.dart';
 
 class ContactsScreen extends StatelessWidget {
    ContactsScreen({super.key});
@@ -78,6 +80,10 @@ class ContactsScreen extends StatelessWidget {
 
                 ],
               ),
+              // ecommerce
+              // movies app
+              // news app
+
               actions: [
                 ElevatedButton(onPressed: (){
                   Navigator.pop(ctx);
@@ -102,22 +108,77 @@ class ContactsScreen extends StatelessWidget {
         },
         child: Icon(Icons.add),
       ),
-      body: Consumer<ContactsProvider>(
-        builder: (_,contactsProvider,__){
-          return ListView.builder(
-              itemBuilder: (context,index){
-                return ListTile(
-                  title: Text(contactsProvider.myContacts[index].name),
-                  subtitle: Text(
-                      contactsProvider.myContacts[index].numbers==null||
-                          contactsProvider.myContacts[index].numbers!.isEmpty?
-                          "":contactsProvider.myContacts[index].numbers!.first.number
-                  ),
+      body: Column(
+        children: [
+          TextFormField(
+            decoration: InputDecoration(
+              labelText: "Search"
+            ),
+            onChanged: (value){
+               Provider.of<ContactsProvider>(context,listen: false).search(value);
+            }
+          ),
+          Expanded(
+            child: Consumer<ContactsProvider>(
+              builder: (_,contactsProvider,__){
+                return ListView.builder(
+                    itemBuilder: (context,index){
+                      return Dismissible(
+                        onDismissed: (direction){
+                          Provider.of<ContactsProvider>(context,listen: false).removeContact(contactsProvider.myContacts[index].contactId);
+                        },
+                        key: ValueKey(contactsProvider.searchResults[index].contactId),
+                        child: InkWell(
+                          onTap: (){
+                            // showDialog(context: context, builder:(ctx){
+                            //   TextEditingController nameController=TextEditingController();
+                            //   return AlertDialog(
+                            //     title:Text("Edit Contact"),
+                            //     content: Column(
+                            //       mainAxisSize: MainAxisSize.min,
+                            //       children: [
+                            //         TextFormField(
+                            //           controller: nameController,
+                            //           decoration: InputDecoration(
+                            //               labelText: "Name",
+                            //               hintText: contactsProvider.searchResults[index].name
+                            //           ),
+                            //
+                            //         ),
+                            //       ],
+                            //     ),
+                            //     actions: [
+                            //       ElevatedButton(onPressed: (){
+                            //         Navigator.pop(ctx);
+                            //       }, child: Text("Cancel")),
+                            //       ElevatedButton(onPressed: (){
+                            //         Navigator.pop(ctx);
+                            //         Provider.of<ContactsProvider>(context,listen: false).editContact(contactsProvider.searchResults[index].contactId, nameController.text);
+                            //       }, child: Text("Confirm")),
+                            //
+                            //     ],
+                            //
+                            //   );
+                            // } );
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>EditContactScreen(contactsProvider.searchResults[index].contactId)));
+                          },
+                          child: ListTile(
+                            title: Text(contactsProvider.searchResults[index].name),
+                            subtitle: Text(
+                                contactsProvider.searchResults[index].numbers==null||
+                                    contactsProvider.searchResults[index].numbers!.isEmpty?
+                                    "":contactsProvider.searchResults[index].numbers!.first.number
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  itemCount: contactsProvider.searchResults.length,
                 );
               },
-            itemCount: contactsProvider.myContacts.length,
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }

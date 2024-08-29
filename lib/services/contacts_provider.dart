@@ -6,6 +6,7 @@ import '../classes/number.dart';
 
 class ContactsProvider extends ChangeNotifier{
   List<Contact> myContacts=[];
+  List<Contact> searchResults=[];
   CountryCode? countryCode=CountryCode.fromDialCode("20");
 
   updateCountryCode(CountryCode? newCountryCode){
@@ -16,7 +17,18 @@ class ContactsProvider extends ChangeNotifier{
   }
 
   addContact(Contact newContact){
+    if (newContact.name.isEmpty){
+      return;
+    }
+    if (newContact.numbers!.isEmpty){
+      return;
+    }
+    if (newContact.numbers!.first.number.isEmpty){
+      return;
+    }
     myContacts.add(newContact);
+    searchResults=myContacts;
+
     notifyListeners();
   }
 
@@ -25,6 +37,9 @@ class ContactsProvider extends ChangeNotifier{
     int findContactIndex=myContacts.indexOf(findContact);
     if (name!=findContact.name && name.isNotEmpty){
       myContacts[findContactIndex].name=name;
+      searchResults=myContacts;
+
+      notifyListeners();
     }
   }
 
@@ -34,6 +49,29 @@ class ContactsProvider extends ChangeNotifier{
     myContacts[findContactIndex].numbers!.add(
       newNumber
     );
+    searchResults=myContacts;
+    notifyListeners();
+  }
+
+  void removeContact(int contactId) {
+    myContacts.removeWhere((element) => element.contactId==contactId);
+    searchResults=myContacts;
+
+    notifyListeners();
+  }
+
+  void search(String value) {
+    if (value.isEmpty){
+      searchResults=myContacts;
+      notifyListeners();
+      return;
+    }
+    searchResults=myContacts.where((element) => element.name.toLowerCase().contains(value.toLowerCase())).toList();
+    notifyListeners();
+  }
+
+  Contact getContact(int id){
+    return myContacts.where((element) => element.contactId==id).toList().first;
   }
 
 }
